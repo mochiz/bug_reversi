@@ -47,7 +47,7 @@ module ReversiMethods
 
     # コピーした盤面にて石の配置を試みて、成功すれば反映する
     copied_board = Marshal.load(Marshal.dump(board))
-    copied_board[pos.col][pos.row] = stone_color
+    copied_board[pos.row][pos.col] = stone_color
 
     turn_succeed = false
     Position::DIRECTIONS.each do |direction|
@@ -61,7 +61,9 @@ module ReversiMethods
   end
 
   def turn(board, target_pos, attack_stone_color, direction)
+    # 盤上外、対象が空白、対象が自石の場合は反転できない
     return false if target_pos.out_of_board?
+    return false if target_pos.stone_color(board) == BLANK_CELL
     return false if target_pos.stone_color(board) == attack_stone_color
 
     next_pos = target_pos.next_position(direction)
@@ -86,6 +88,8 @@ module ReversiMethods
         return true if put_stone(board, position.to_cell_ref, attack_stone_color, dry_run: true)
       end
     end
+    # 一つも置ける場所がない場合はfalseを返す
+    false
   end
 
   def count_stone(board, stone_color)
